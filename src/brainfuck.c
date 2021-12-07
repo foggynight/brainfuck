@@ -48,7 +48,7 @@ void parse_program(char *path) {
     char *file_str = malloc(file_size);
     if (file_str == NULL)
         error("brainfuck: memory error\n");
-    if (fread(file_str, 1, file_size, fp) != file_size)
+    if (fread(file_str, 1, file_size, fp) != (size_t)file_size)
         error("brainfuck: file read error: %s\n", path);
     for (int i = 0; i < file_size; ++i)
         if (is_command(file_str[i]))
