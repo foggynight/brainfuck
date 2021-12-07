@@ -10,11 +10,17 @@
 
 char *prog;
 size_t prog_ptr;
-size_t prog_cnt;  // Number of commands in the program array.
-size_t prog_size; // Current size of the program array.
+size_t prog_cnt; // Number of commands in the program array.
+size_t prog_siz; // Current size of the program array.
 
 char data[DATA_SIZE];
 uint16_t data_ptr;
+
+// Each element in this array contains the index within prog of the bracket
+// which matches the bracket at the same index within prog as the index of the
+// element in this array. If the character within prog at a given index of this
+// array is not a bracket, the value at that index in this array is zero.
+size_t *matches;
 
 int is_command(char c) {
     static const char commands[] = { '>', '<', '+', '-', '.', ',', '[', ']' };
@@ -25,9 +31,9 @@ int is_command(char c) {
 }
 
 void add_command(char c) {
-    if (prog_cnt >= prog_size) {
-        prog_size *= 2;
-        prog = realloc(prog, prog_size);
+    if (prog_cnt >= prog_siz) {
+        prog_siz *= 2;
+        prog = realloc(prog, prog_siz);
         if (prog == NULL)
             error("brainfuck: memory error\n");
     }
@@ -39,7 +45,7 @@ void parse_program(char *path) {
     FILE *fp = fopen(path, "r");
     if (fp == NULL)
         error("brainfuck: failed to open file: %s\n", path);
-    if (fseek(fp, 0L, SEEK_END))
+    if (fseek(fp, 0L, SEEK_END) != 0)
         error("brainfuck: file read error: %s\n", path);
     const long file_size = ftell(fp);
     if (file_size == -1L)
@@ -56,58 +62,67 @@ void parse_program(char *path) {
     free(file_str);
 }
 
-void exec_open_bracket(char **com_ptr) {
-    if (data[data_ptr] != 0)
-        return;
-    size_t match = 0;
-    for (char *com = *com_ptr + 1; com < prog + prog_cnt; ++com) {
-        if (*com == '[')
-            ++match;
-        else if (*com == ']') {
-            if (match == 0) {
-                *com_ptr = com;
-                return;
+void compute_matches(void) {
+    matches = calloc(prog_siz, sizeof(size_t));
+    if (matches == NULL)
+        error("brainfuck: memory error\n");
+    for (prog_ptr = 0; prog_ptr < prog_cnt; ++prog_ptr) {
+        size_t counter = 0;
+        if (prog[prog_ptr] == '[') {
+            for (size_t i = prog_ptr + 1; i < prog_cnt; ++i) {
+                if (prog[i] == '[')
+                    ++counter;
+                else if (prog[i] == ']') {
+                    if (counter == 0) {
+                        matches[prog_ptr] = i;
+                        break;
+                    }
+                    --counter;
+                }
             }
-            --match;
+            if (matches[prog_ptr] == 0)
+                error("brainfuck: unmatched open bracket\n");
+        } else if (prog[prog_ptr] == ']') {
+            matches[prog_ptr] = prog_ptr;
+            for (size_t i = prog_ptr - 1; 1; --i) {
+                if (prog[i] == ']')
+                    ++counter;
+                else if (prog[i] == '[') {
+                    if (counter == 0) {
+                        matches[prog_ptr] = i;
+                        break;
+                    }
+                    --counter;
+                }
+                if (i == 0)
+                    break;
+            }
+            if (matches[prog_ptr] == prog_ptr)
+                error("brainfuck: unmatched closed bracket\n");
         }
     }
-    error("brainfuck: unmatched open bracket\n");
-}
-
-void exec_closed_bracket(char **com_ptr) {
-    size_t match = 0;
-    for (char *com = *com_ptr - 1; com >= prog; --com) {
-        if (*com == ']')
-            ++match;
-        else if (*com == '[') {
-            if (match == 0) {
-                *com_ptr = com - 1;
-                return;
-            }
-            --match;
-        }
-    }
-    error("brainfuck: unmatched closed bracket\n");
 }
 
 int main(int argc, char **argv) {
     if (argc != 2)
         error("brainfuck: invalid argument count\n");
-    prog_size = PROG_INIT_SIZE;
-    prog = malloc(PROG_INIT_SIZE);
+    prog = malloc((prog_siz = PROG_INIT_SIZE));
     if (prog == NULL)
         error("brainfuck: memory error\n");
     parse_program(argv[1]);
-    for (char *com = prog; com < prog + prog_cnt; ++com) {
-        switch(*com) {
+    compute_matches();
+    for (prog_ptr = 0; prog_ptr < prog_cnt; ++prog_ptr) {
+        switch(prog[prog_ptr]) {
             case '>': ++data_ptr; break;
             case '<': --data_ptr; break;
             case '+': ++data[data_ptr]; break;
             case '-': --data[data_ptr]; break;
             case '.': putchar(data[data_ptr]); break;
             case ',': data[data_ptr] = getchar(); break;
-            case '[': exec_open_bracket(&com); break;
-            case ']': exec_closed_bracket(&com); break;
+            case '[': if (data[data_ptr] == 0)
+                          prog_ptr = matches[prog_ptr];
+                      break;
+            case ']': prog_ptr = matches[prog_ptr] - 1; break;
         }
     }
 }
