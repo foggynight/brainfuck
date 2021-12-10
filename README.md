@@ -1,17 +1,34 @@
 brainfuck
 =========
 
-brainfuck interpreter.
+Brainfuck interpreter written in C.
+
 
 Installation
 ------------
 
+To build the brainfuck interpreter:
+
     make
+
+This will create the `brainfuck` executable.
+
 
 Usage
 -----
 
+To run the interpreter on a brainfuck source file:
+
     ./brainfuck FILE
+
+To terminate input, send an EOF to the interpreter.
+
+
+Examples
+--------
+
+The `examples` directory contains example brainfuck programs.
+
 
 License
 -------
