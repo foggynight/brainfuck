@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define PROG_INIT_SIZE (2 << 8)
-#define DATA_SIZE (2 << 16)
+#define PROG_INIT_SIZE (1 << 8)
+#define DATA_SIZE (1 << 16)
 
 #define error(...) do { fprintf(stderr, __VA_ARGS__); exit(1); } while(0)
 
