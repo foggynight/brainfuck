@@ -1,5 +1,5 @@
 PROG=brainfuck
-SRCS=src/brainfuck.c
+SRCS=brainfuck.c
 FLAGS=-Ofast -Wall -Wextra -Wpedantic
 
 .PHONY: all
