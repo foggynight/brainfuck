@@ -14,13 +14,15 @@ size_t prog_cnt; // Number of commands in the program array.
 size_t prog_siz; // Current size of the program array.
 
 char data[DATA_SIZE];
-uint16_t data_ptr;
+size_t data_ptr;
 
-// Each element in this array contains the index within prog of the bracket
-// which matches the bracket at the same index within prog as the index of the
-// element in this array. If the character within prog at a given index of this
-// array is not a bracket, the value at that index in this array is zero.
+// matches[i] = { if prog[i] is bracket: index of matching bracket
+//              { otherwise:             0
 size_t *matches;
+
+#ifdef MODE_ACCUM
+char accum;
+#endif
 
 int is_command(char c) {
     static const char commands[] = { '>', '<', '+', '-', '.', ',', '[', ']' };
@@ -113,16 +115,24 @@ int main(int argc, char **argv) {
     compute_matches();
     for (prog_ptr = 0; prog_ptr < prog_cnt; ++prog_ptr) {
         switch(prog[prog_ptr]) {
-            case '>': ++data_ptr; break;
-            case '<': --data_ptr; break;
-            case '+': ++data[data_ptr]; break;
-            case '-': --data[data_ptr]; break;
-            case '.': putchar(data[data_ptr]); break;
-            case ',': data[data_ptr] = getchar(); break;
-            case '[': if (data[data_ptr] == 0)
-                          prog_ptr = matches[prog_ptr];
-                      break;
-            case ']': prog_ptr = matches[prog_ptr] - 1; break;
+        case '>': ++data_ptr; break;
+        case '<': --data_ptr; break;
+        case '+': ++data[data_ptr]; break;
+        case '-': --data[data_ptr]; break;
+        case '[': if (data[data_ptr] == 0)
+                prog_ptr = matches[prog_ptr];
+            break;
+        case ']': prog_ptr = matches[prog_ptr] - 1; break;
+        case ',': data[data_ptr] = getchar(); break;
+#ifdef MODE_ACCUM
+        case '.': accum += data[data_ptr]; break;
+#else
+        case '.': putchar(data[data_ptr]); break;
+#endif
         }
     }
+#ifdef MODE_ACCUM
+    printf("%X", accum);
+#endif
+    return 0;
 }

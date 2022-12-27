@@ -1,5 +1,14 @@
+PROG=brainfuck
+SRCS=src/brainfuck.c
+FLAGS=-Ofast -Wall -Wextra -Wpedantic
+
+.PHONY: all
 all:
-	gcc -o brainfuck -Ofast -Wall -Wextra -Wpedantic src/brainfuck.c
+	gcc -o $(PROG) $(FLAGS) $(SRCS)
+
+.PHONY: accum
+accum:
+	gcc -o $(PROG) -D MODE_ACCUM $(FLAGS) $(SRCS)
 
 .PHONY: test
 test:
