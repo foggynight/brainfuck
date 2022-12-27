@@ -113,17 +113,16 @@ int main(int argc, char **argv) {
         error("brainfuck: memory error\n");
     parse_program(argv[1]);
     compute_matches();
+    int inp; // Used in ',' word.
     for (prog_ptr = 0; prog_ptr < prog_cnt; ++prog_ptr) {
         switch(prog[prog_ptr]) {
         case '>': ++data_ptr; break;
         case '<': --data_ptr; break;
         case '+': ++data[data_ptr]; break;
         case '-': --data[data_ptr]; break;
-        case '[': if (data[data_ptr] == 0)
-                prog_ptr = matches[prog_ptr];
-            break;
+        case '[': if (data[data_ptr] == 0) prog_ptr = matches[prog_ptr]; break;
         case ']': prog_ptr = matches[prog_ptr] - 1; break;
-        case ',': data[data_ptr] = getchar(); break;
+        case ',': data[data_ptr] = ((inp = getchar()) == EOF) ? 0 : inp; break;
 #ifdef MODE_ACCUM
         case '.': accum += data[data_ptr]; break;
 #else
