@@ -43,6 +43,7 @@ void add_command(char c) {
     ++prog_cnt;
 }
 
+// TODO: Fetch input without using fseek etc to allow for input by pipe.
 void parse_program(char *path) {
     FILE *fp = fopen(path, "r");
     if (fp == NULL)
