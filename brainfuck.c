@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define PROG_INIT_SIZE (1 << 8)
 #define DATA_SIZE (1 << 16)
@@ -24,13 +25,7 @@ size_t *matches;
 char accum;
 #endif
 
-int is_command(char c) {
-    static const char commands[] = { '>', '<', '+', '-', '.', ',', '[', ']' };
-    for (int i = 0; i < 8; ++i)
-        if (c == commands[i])
-            return 1;
-    return 0;
-}
+int is_command(char c) { return strchr("<>+-[],.", c) != NULL; }
 
 void add_command(char c) {
     if (prog_cnt >= prog_siz) {
