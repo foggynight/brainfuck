@@ -38,26 +38,13 @@ void add_command(char c) {
     ++prog_cnt;
 }
 
-// TODO: Fetch input without using fseek etc to allow for input by pipe.
-void parse_program(char *path) {
+void parse_program(const char *path) {
     FILE *fp = fopen(path, "r");
-    if (fp == NULL)
-        error("brainfuck: failed to open file: %s\n", path);
-    if (fseek(fp, 0L, SEEK_END) != 0)
-        error("brainfuck: file read error: %s\n", path);
-    const long file_size = ftell(fp);
-    if (file_size == -1L)
-        error("brainfuck: file read error: %s\n", path);
-    rewind(fp);
-    char *file_str = malloc(file_size);
-    if (file_str == NULL)
-        error("brainfuck: memory error\n");
-    if (fread(file_str, 1, file_size, fp) != (size_t)file_size)
-        error("brainfuck: file read error: %s\n", path);
-    for (int i = 0; i < file_size; ++i)
-        if (is_command(file_str[i]))
-            add_command(file_str[i]);
-    free(file_str);
+    if (fp == NULL) error("brainfuck: failed to open file: %s\n", path);
+    for (char c; (c = fgetc(fp)) != EOF;)
+        if (is_command(c))
+            add_command(c);
+    if (fclose(fp)) error("brainfuck: failed to close file: %s\n", path);
 }
 
 void compute_matches(void) {
