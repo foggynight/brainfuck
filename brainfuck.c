@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define PROG_INIT_SIZE (1 << 8)
+#define INIT_PROG_SIZE (1 << 8)
 #define DATA_SIZE (1 << 16)
 
 #define error(...) do { fprintf(stderr, __VA_ARGS__); exit(1); } while(0)
@@ -31,8 +31,7 @@ void add_command(char c) {
     if (prog_cnt >= prog_siz) {
         prog_siz *= 2;
         prog = realloc(prog, prog_siz);
-        if (prog == NULL)
-            error("brainfuck: memory error\n");
+        if (prog == NULL) error("brainfuck: memory error\n");
     }
     prog[prog_cnt] = c;
     ++prog_cnt;
@@ -42,8 +41,7 @@ void parse_program(const char *path) {
     FILE *fp = fopen(path, "r");
     if (fp == NULL) error("brainfuck: failed to open file: %s\n", path);
     for (char c; (c = fgetc(fp)) != EOF;)
-        if (is_command(c))
-            add_command(c);
+        if (is_command(c)) add_command(c);
     if (fclose(fp)) error("brainfuck: failed to close file: %s\n", path);
 }
 
@@ -79,8 +77,7 @@ void compute_matches(void) {
                     }
                     --counter;
                 }
-                if (i == 0)
-                    break;
+                if (i == 0) break;
             }
             if (matches[prog_ptr] == prog_ptr)
                 error("brainfuck: unmatched closed bracket\n");
@@ -89,11 +86,9 @@ void compute_matches(void) {
 }
 
 int main(int argc, char **argv) {
-    if (argc != 2)
-        error("brainfuck: invalid argument count\n");
-    prog = malloc((prog_siz = PROG_INIT_SIZE));
-    if (prog == NULL)
-        error("brainfuck: memory error\n");
+    if (argc != 2) error("brainfuck: invalid argument count\n");
+    prog = malloc((prog_siz = INIT_PROG_SIZE));
+    if (prog == NULL) error("brainfuck: memory error\n");
     parse_program(argv[1]);
     compute_matches();
     int inp; // Used in ',' word.
