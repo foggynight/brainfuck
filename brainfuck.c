@@ -7,7 +7,7 @@
 #define INIT_PROG_SIZE (1 << 8)
 #define DATA_SIZE (1 << 16)
 
-#define error(...) do { fprintf(stderr, __VA_ARGS__); exit(1); } while(0)
+#define error(...) do { fprintf(stderr, __VA_ARGS__); exit(1); } while (0)
 
 char *prog;
 size_t prog_ptr;
@@ -17,8 +17,8 @@ size_t prog_siz; // Current size of the program array.
 char data[DATA_SIZE];
 size_t data_ptr;
 
-// matches[i] = { if prog[i] is bracket: index of matching bracket
-//              { otherwise:             0
+// matches[i] = { prog[i] is bracket: index of matching bracket
+//              { else:               0
 size_t *matches;
 
 #ifdef MODE_ACCUM
@@ -93,11 +93,11 @@ int main(int argc, char **argv) {
     compute_matches();
     int inp; // Used in ',' word.
     for (prog_ptr = 0; prog_ptr < prog_cnt; ++prog_ptr) {
-        switch(prog[prog_ptr]) {
-        case '>': ++data_ptr; break;
+        switch (prog[prog_ptr]) {
         case '<': --data_ptr; break;
-        case '+': ++data[data_ptr]; break;
+        case '>': ++data_ptr; break;
         case '-': --data[data_ptr]; break;
+        case '+': ++data[data_ptr]; break;
         case '[': if (data[data_ptr] == 0) prog_ptr = matches[prog_ptr]; break;
         case ']': prog_ptr = matches[prog_ptr] - 1; break;
         case ',': data[data_ptr] = ((inp = getchar()) == EOF) ? 0 : inp; break;
