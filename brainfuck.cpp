@@ -14,7 +14,7 @@ char data[DATA_SIZE];
 size_t data_ptr;
 
 // match[i] = { prog[i] is bracket: index of matching bracket
-//            { else:               0
+//            { else:               undefined
 size_t *match;
 
 #ifdef MODE_ACCUM
