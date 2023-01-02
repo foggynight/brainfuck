@@ -1,12 +1,11 @@
 # brainfuck
 
-Brainfuck interpreter written in C; uses a constant number of 8-bit cells and
-precomputes matching brackets.
+Brainfuck interpreter which uses uses a constant number of 8-bit cells,
+precomputes matching brackets, and has an accumulator mode.
 
-There is also an accumulator mode which can be built using the `accum` make
-target. In this mode, the `.` command adds the value of the current cell to an
-accumulator, the value of the accumulator is output in hexadecimal at the end of
-program execution.
+The accumulator mode can be built using the `accum` make target. In this mode,
+the `.` command adds the value of the current cell to an accumulator, the value
+of the accumulator is output in hexadecimal at the end of program execution.
 
 ## Installation
 
